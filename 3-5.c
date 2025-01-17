@@ -1,47 +1,74 @@
 #include <stdio.h>
+#include <string.h>
 #define MAXLINE 1000
 
-void itob(int n, int b, char input[]);
+void itob(int n, int b, char line[]);
+void reverse(char s[]);
 
-char input[1000];
+char line[1000];
 
 int main()
 {
     int base, n;
     base = 2;
-    n = 15;
-    itob(n, base, input);
-    printf("%s", input);
+    n = 8;
+
+    // base 10 int to any base
+    itob(n, base, line);
+    printf("%s\n", line);
+    // 1010
+    itob(10, 2, line);
+    printf("%s\n", line);
+    // 101
+    itob(65, 8, line);
+    printf("%s\n", line);
+    // FF
+    itob(255, 16, line);
+    printf("%s\n", line);
+    // 400
+    itob(100, 5, line);
+    printf("%s\n", line);
+    // 112
+    itob(14, 3, line);
+    printf("%s\n", line);
+    // 9IX
+    itob(12345, 36, line);
+    printf("%s\n", line);
+    // 1234
+    itob(1234, 10, line);
+    printf("%s\n", line);
+    // 0
+    itob(0, 2, line);
+    printf("%s\n", line);
 
     return 0;
 }
 
 void itob(int n, int b, char input[])
 {
-    int i, tmp, rem, ch, special_char;
-    ch = '0';
+    int i;
     i = 0;
-    special_char = b + '0';
     do
     {
-        tmp = n / b;
-        if (rem = (tmp % b) != 0)
-        {
-            if (rem)
-                input[i++] = ch;
-        }
-        /*15/2 = 7.5
-             1
-        7 / 2 = 3.5
-            11
-        3 / 2 = 1.5
-            111
-        1/2 = 0/5
-            1111
-             */
+        printf("n = %d\n", n);
+        if ((n % b) < 10)
+            input[i++] = ((n % b) + '0');
+        else
+            input[i++] = ((n % b) - 10 + 'A');
+        n /= b;
+    } while (n != 0);
+    input[i] = '\0';
+    reverse(input);
+}
 
-    } while (n % b != 0);
-    if ()
-
-    // dostuff
+void reverse(char s[])
+{
+    int i, j;
+    char tmp;
+    for (i = 0, j = strlen(s) - 1; i < j; i++, j--)
+    {
+        tmp = s[i];
+        s[i] = s[j];
+        s[j] = tmp;
+    }
 }
