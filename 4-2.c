@@ -9,7 +9,7 @@ int get_line(char line[], int MAX);
 int main(void)
 {
     double val;
-    char input[] = "-123.45e-8";
+    char input[] = "-123.45e8";
     val = ato_f(input);
     printf("Float is: %.10f\n", val);
 
@@ -37,17 +37,27 @@ double ato_f(char s[])
         power *= 10;
     }
     // case insensitive
-    if (s[i] == 'e' || s[i] == 'E')
+    if ((s[i] == 'e' || s[i] == 'E'))
     {
-        // increment to move past e
-        i += 2;
-        curr = (s[i] - '0');
+        if (s[i + 1] == '-')
+        {
+            // increment to move past e
+            i += 2;
+            curr = (s[i] - '0');
+            for (place = 1; curr > 0; --curr)
+            {
+                place *= 10;
+            }
+        }
+        else
+        {
+            curr = (s[++i] - '0');
+            for (place = 1; curr > 0; --curr)
+            {
+                place /= 10;
+            }
+        }
     }
-    for (place = 1; curr > 0; --curr)
-    {
-        place *= 10;
-    }
-
     return (sign * val) / (power * place);
 }
 
