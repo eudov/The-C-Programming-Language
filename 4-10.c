@@ -25,6 +25,7 @@ void duplicate(void);
 void swap();
 void clear();
 void custom_var(double value);
+int get_line(void);
 
 int var_flag = -1;
 double a;
@@ -178,16 +179,46 @@ void custom_var(double value)
     printf("a set to %0.8g\n", value);
 }
 
-#include <ctype.h>
+#define BUFSIZE 1000
 
-int get_ch(void);
-void unget_ch(int);
+char buf[BUFSIZE];
+int buff_pos = 0;
+
+int get_line(void)
+{
+    int i, c;
+
+    for (i = 0; i < BUFSIZE && ((c = getchar()) != '\0') && c != '\n' && c != EOF; i++)
+    {
+        buf[i] = c;
+    }
+
+    if (c == '\n')
+    {
+        buf[i] = c;
+    }
+
+    buf[i] = '\0';
+    return i;
+}
+
+#include <ctype.h>
 
 int getop(char s[])
 {
     int i, c;
+
+    if (buf[buff_pos] == '\0')
+    {
+        if (get_line() == 0)
+        {
+            return EOF;
+        }
+        buff_pos = 0;
+    }
+
     // ignore all empty space and assign first character to s[0]
-    while ((s[0] = c = get_ch()) == ' ' || c == '\t')
+    while ((s[0] = c = buf[buff_pos++]) == ' ' || c == '\t')
         ;
     // null terminate right after in case there's only one char
     s[1] = '\0';
@@ -205,9 +236,9 @@ int getop(char s[])
     }
     if (c == 'S')
     {
-        if ((c = get_ch()) == 'I')
+        if ((c = buf[buff_pos++]) == 'I')
         {
-            if ((c = get_ch()) == 'N')
+            if ((c = buf[buff_pos++]) == 'N')
             {
                 return SIN;
             }
@@ -216,9 +247,9 @@ int getop(char s[])
     }
     if (c == 'E')
     {
-        if ((c = get_ch()) == 'X')
+        if ((c = buf[buff_pos++]) == 'X')
         {
-            if ((c = get_ch()) == 'P')
+            if ((c = buf[buff_pos++]) == 'P')
             {
                 return EXP;
             }
@@ -227,9 +258,9 @@ int getop(char s[])
     }
     if (c == 'P')
     {
-        if ((c = get_ch()) == 'O')
+        if ((c = buf[buff_pos++]) == 'O')
         {
-            if ((c = get_ch()) == 'W')
+            if ((c = buf[buff_pos++]) == 'W')
             {
                 return POW;
             }
@@ -244,62 +275,31 @@ int getop(char s[])
     if (c == '-')
     {
         // check if the next one is a digit, if it is, we need to use it
-        if (isdigit(c = get_ch()))
+        if (isdigit(c = buf[buff_pos++]))
         {
-            unget_ch(c);
-            while (isdigit(s[++i] = c = get_ch()))
+            ;
+            while (isdigit(s[++i] = c = buf[i++]))
                 ;
         }
         // if not, save it for the next iteration, but return '-' manually (we lost it from the last if check)
         else
         {
-            unget_ch(c);
+            --i;
             return '-';
         }
     }
     // add all the digits to s
     if (isdigit(c))
-        while (isdigit(s[++i] = c = get_ch()))
+        while (isdigit(s[++i] = c = buf[i++]))
             ;
     // handle decimal, but pretty much just keep adding
     if (c == '.')
-        while (isdigit(s[++i] = c = get_ch()))
+        while (isdigit(s[++i] = c = buf[i++]))
             ;
     // null terminate for real
     s[i] = '\0';
     // if the last term is not EOF, store it and deal with it later (it sends it to get_ch)
     if (c != EOF)
-        unget_ch(c);
+        --i;
     return NUMBER;
-}
-
-#define BUFSIZE 100
-
-char buf[BUFSIZE];
-int bufp = 0;
-
-int get_ch(void)
-{
-    // if there's something in the buffer, send that first
-    return (bufp > 0) ? buf[--bufp] : getchar();
-}
-
-void unget_ch(int c)
-{
-    // simple overflow check then add it to the buffer
-    if (bufp >= BUFSIZE)
-        printf("ungetch: too many characters\n");
-    else
-        buf[bufp++] = c;
-}
-
-void ungets(char s[])
-{
-    int i, len;
-    len = strlen(s);
-
-    for (i = 0; i < len; i++)
-    {
-        unget_ch(s[i]);
-    }
 }
