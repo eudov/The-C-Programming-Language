@@ -1,40 +1,54 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#define MAXLINE 1000
 
+char *line;
 char ch;
-int strend(char *s, char t);
+int strend(char *s, char *t);
+char *s = "Test string &";
 
 int main()
 {
-    while ((ch = getchar()) != 'q')
+    // line has a double function of allocating the memory but also holding the start forever
+    line = (char *)malloc(sizeof(char) * MAXLINE);
+
+    // now line + i is the full length of the string
+    int i = 0;
+    while ((*(line + i) = ch = getchar()) != 'q')
     {
         if (ch == '\n')
         {
-            // printf("got here\n");
+            *(line + i) = '\0';
+            strrev(line);
+            printf("%d\n", strend(s, line));
+            i = 0;
             continue;
         }
-
-        char *s = "Test string &";
-
-        printf("%d\n", strend(s, ch));
+        i++;
     }
 
     return 0;
 }
 
-int strend(char *s, char t)
+int strend(char *s, char *t)
 {
+    // elegant little traversal
     for (; *s != '\0'; s++)
-        // printf("%c\n", *s);
         ;
 
-    if (t == *--s)
+    while (*t != '\0')
     {
-        printf("Found %c at end of string (%c)\n", t, *s);
-        return 1;
+        if (*t++ == *--s)
+        {
+            printf("Matched %c and %c at end of string.\n", *(t - 1), *s);
+        }
+        else
+        {
+            printf("Did not find %c at end of string (%c)\n", *t, *s);
+            return 0;
+        }
     }
-    else
-    {
-        printf("Did not find %c at end of string (%c)\n", t, *s);
-        return 0;
-    };
+    printf("Reached end of string\n");
+    return 1;
 }
